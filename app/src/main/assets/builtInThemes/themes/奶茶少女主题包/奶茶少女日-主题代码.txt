@@ -1,0 +1,8 @@
+{
+"accentColor": "#ff6a4a3f",
+"backgroundColor": "#ffeddccf",
+"bottomBackground": "#ffbcaaa4",
+"isNightTheme": false,
+"primaryColor": "#ffa2b0a2",
+"themeName": "奶茶少女1"
+}

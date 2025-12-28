@@ -1232,4 +1232,6 @@
     <string name="auto_check_new_backup_t">自动检查新备份</string>
     <string name="auto_check_new_backup_s">打开软件时检查是否有新备份，有新备份时提示是否更新</string>
     <string name="sys_image_picker">系统图片选择器</string>
+    <string name="built_in_theme_selector">Built-in Themes</string>
+    <string name="built_in_theme_selector_desc">Select and apply built-in themes</string>
 </resources>

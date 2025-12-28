@@ -1,0 +1,8 @@
+{
+"accentColor": "#ff5f5b5a",
+"backgroundColor": "#fff7f7f7",
+"bottomBackground": "#fff7f7f7",
+"isNightTheme": false,
+"primaryColor": "#fff7f7f7",
+"themeName": "简约白"
+}

@@ -42,6 +42,13 @@
         android:title="@string/theme_mode"
         app:iconSpaceReserved="false" />
 
+    <io.legado.app.lib.prefs.Preference
+        android:icon="@drawable/ic_cfg_theme"
+        android:key="builtInThemeSelector"
+        android:summary="@string/built_in_theme_selector_desc"
+        android:title="@string/built_in_theme_selector"
+        app:iconSpaceReserved="false" />
+
     <io.legado.app.lib.prefs.PreferenceCategory
         android:title="@string/setting"
         app:allowDividerAbove="true"

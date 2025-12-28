@@ -1,0 +1,8 @@
+{
+"accentColor": "#ff363636",
+"backgroundColor": "#ffd8d8d8",
+"bottomBackground": "#ff868990",
+"isNightTheme": false,
+"primaryColor": "#ffe8e8e8",
+"themeName": "灰"
+}

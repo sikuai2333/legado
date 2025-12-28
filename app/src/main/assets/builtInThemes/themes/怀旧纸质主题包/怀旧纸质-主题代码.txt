@@ -1,0 +1,8 @@
+{
+"accentColor": "#ff363636",
+"backgroundColor": "#ffd7c3ab",
+"bottomBackground": "#ffd7c3ab",
+"isNightTheme": false,
+"primaryColor": "#ffd7c3ab",
+"themeName": "怀旧纸质"
+}

@@ -1,0 +1,8 @@
+{
+"accentColor": "#ff8d8465",
+"backgroundColor": "#fffffbed",
+"bottomBackground": "#fffffbed",
+"isNightTheme": false,
+"primaryColor": "#fffffbed",
+"themeName": "墨羽文韵"
+}

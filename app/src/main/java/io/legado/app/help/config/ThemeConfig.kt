@@ -29,7 +29,9 @@ import io.legado.app.utils.getPrefString
 import io.legado.app.utils.hexString
 import io.legado.app.utils.postEvent
 import io.legado.app.utils.printOnDebug
+import io.legado.app.utils.putPrefBoolean
 import io.legado.app.utils.putPrefInt
+import io.legado.app.utils.putPrefString
 import io.legado.app.utils.stackBlur
 import splitties.init.appCtx
 import java.io.File
@@ -41,7 +43,14 @@ object ThemeConfig {
 
     val configList: ArrayList<Config> by lazy {
         val cList = getConfigs() ?: DefaultData.themeConfigs
-        ArrayList(cList)
+        val list = ArrayList(cList)
+        // 加载内置主题
+        loadBuiltInThemes().forEach { builtInConfig ->
+            if (list.none { it.themeName == builtInConfig.themeName }) {
+                list.add(builtInConfig)
+            }
+        }
+        list
     }
 
     fun getTheme() = when {
@@ -166,6 +175,37 @@ object ThemeConfig {
         return null
     }
 
+    /**
+     * 从assets加载内置主题
+     */
+    private fun loadBuiltInThemes(): List<Config> {
+        val themes = mutableListOf<Config>()
+        try {
+            val assetManager = appCtx.assets
+            val themeFiles = assetManager.list("builtInThemes") ?: emptyArray()
+            themeFiles.forEach { fileName ->
+                if (fileName.endsWith(".json")) {
+                    try {
+                        val json = assetManager.open("builtInThemes/$fileName").bufferedReader().use { it.readText() }
+                        GSON.fromJsonObject<Config>(json).getOrNull()?.let { config ->
+                            if (validateConfig(config)) {
+                                // 设置assets主题路径，用于后续加载图片
+                                val themeFolderName = fileName.removeSuffix(".json") + "主题包"
+                                config.assetsThemePath = "builtInThemes/themes/$themeFolderName"
+                                themes.add(config)
+                            }
+                        }
+                    } catch (e: Exception) {
+                        e.printOnDebug()
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            e.printOnDebug()
+        }
+        return themes
+    }
+
     fun applyConfig(context: Context, config: Config) {
         try {
             val primary = Color.parseColor(config.primaryColor)
@@ -183,10 +223,75 @@ object ThemeConfig {
                 context.putPrefInt(PreferKey.cBackground, background)
                 context.putPrefInt(PreferKey.cBBackground, bBackground)
             }
+
+            // 应用内置主题的图片资源
+            config.assetsThemePath?.let { themePath ->
+                applyThemeImages(context, themePath, config.isNightTheme)
+            }
+
             AppConfig.isNightTheme = config.isNightTheme
             applyDayNight(context)
         } catch (e: Exception) {
             AppLog.put("设置主题出错\n$e", e, true)
+        }
+    }
+
+    /**
+     * 应用主题图片资源
+     */
+    private fun applyThemeImages(context: Context, themePath: String, isNightTheme: Boolean) {
+        try {
+            val assetManager = appCtx.assets
+
+            // 查找并复制启动界面图片
+            val welcomeFiles = assetManager.list("$themePath/启动界面样式") ?: emptyArray()
+            welcomeFiles.firstOrNull { it.endsWith(".jpg") || it.endsWith(".png") }?.let { welcomeFile ->
+                copyAssetToFile(
+                    "$themePath/启动界面样式/$welcomeFile",
+                    if (isNightTheme) PreferKey.welcomeImageDark else PreferKey.welcomeImage
+                )
+            }
+
+            // 查找并复制主题背景图片
+            val bgFiles = assetManager.list("$themePath/主题背景") ?: emptyArray()
+            bgFiles.firstOrNull {
+                val name = it.lowercase()
+                (name.contains("日") || name.contains("day")) && (name.endsWith(".jpg") || name.endsWith(".png"))
+            }?.let { bgFile ->
+                copyAssetToFile(
+                    "$themePath/主题背景/$bgFile",
+                    if (isNightTheme) PreferKey.bgImageN else PreferKey.bgImage
+                )
+            }
+
+            // 启用自定义欢迎界面
+            context.putPrefBoolean(PreferKey.customWelcome, true)
+        } catch (e: Exception) {
+            e.printOnDebug()
+            AppLog.put("应用主题图片出错\n${e.localizedMessage}", e)
+        }
+    }
+
+    /**
+     * 从assets复制文件到应用目录
+     */
+    private fun copyAssetToFile(assetPath: String, preferKey: String) {
+        try {
+            val assetManager = appCtx.assets
+            val fileName = assetPath.substringAfterLast("/")
+            val targetDir = appCtx.externalFiles.getFile(preferKey)
+            targetDir.mkdirs()
+            val targetFile = File(targetDir, fileName)
+
+            assetManager.open(assetPath).use { input ->
+                targetFile.outputStream().use { output ->
+                    input.copyTo(output)
+                }
+            }
+
+            appCtx.putPrefString(preferKey, targetFile.absolutePath)
+        } catch (e: Exception) {
+            e.printOnDebug()
         }
     }
 
@@ -316,7 +421,8 @@ object ThemeConfig {
         var primaryColor: String,
         var accentColor: String,
         var backgroundColor: String,
-        var bottomBackground: String
+        var bottomBackground: String,
+        var assetsThemePath: String? = null  // assets中的主题路径，用于内置主题
     ) {
 
         override fun hashCode(): Int {
