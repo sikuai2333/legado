@@ -37,12 +37,37 @@ class RssAdapter(
             tvName.text = item.sourceName
             val options = RequestOptions()
                 .set(OkHttpModelLoader.sourceOriginOption, item.sourceUrl)
-            ImageLoader.load(fragment, lifecycle, item.sourceIcon)
-                .apply(options)
-                .centerCrop()
-                .placeholder(R.drawable.image_rss)
-                .error(R.drawable.image_rss)
-                .into(ivIcon)
+
+            // 处理drawable资源引用
+            if (item.sourceIcon.startsWith("@drawable/")) {
+                val drawableName = item.sourceIcon.removePrefix("@drawable/")
+                val drawableId = context.resources.getIdentifier(
+                    drawableName,
+                    "drawable",
+                    context.packageName
+                )
+                if (drawableId != 0) {
+                    ImageLoader.load(context, drawableId)
+                        .centerCrop()
+                        .placeholder(R.drawable.image_rss)
+                        .error(R.drawable.image_rss)
+                        .into(ivIcon)
+                } else {
+                    ImageLoader.load(fragment, lifecycle, item.sourceIcon)
+                        .apply(options)
+                        .centerCrop()
+                        .placeholder(R.drawable.image_rss)
+                        .error(R.drawable.image_rss)
+                        .into(ivIcon)
+                }
+            } else {
+                ImageLoader.load(fragment, lifecycle, item.sourceIcon)
+                    .apply(options)
+                    .centerCrop()
+                    .placeholder(R.drawable.image_rss)
+                    .error(R.drawable.image_rss)
+                    .into(ivIcon)
+            }
         }
     }
 
