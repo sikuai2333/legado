@@ -252,15 +252,81 @@ object ThemeConfig {
                 )
             }
 
-            // 查找并复制主题背景图片
+            // 查找并复制主题背景图片（日间和夜间）
             val bgFiles = assetManager.list("$themePath/主题背景") ?: emptyArray()
-            bgFiles.firstOrNull {
+            // 过滤图片文件，排除明显不是背景图的文件（如启动界面样式）
+            val imageBgFiles = bgFiles.filter {
+                (it.endsWith(".jpg") || it.endsWith(".png") || it.endsWith(".jpeg")) &&
+                !it.contains("启动") && !it.contains("启动界面")
+            }
+
+            // 查找日间主题背景
+            val dayBgFile = imageBgFiles.firstOrNull {
                 val name = it.lowercase()
-                (name.contains("日") || name.contains("day")) && (name.endsWith(".jpg") || name.endsWith(".png"))
-            }?.let { bgFile ->
+                name.contains("日") || name.contains("day")
+            }
+
+            // 查找夜间主题背景
+            val nightBgFile = imageBgFiles.firstOrNull {
+                val name = it.lowercase()
+                name.contains("夜") || name.contains("night")
+            }
+
+            // 如果有明确的日夜区分，使用对应的图片；否则使用第一张图片作为通用背景
+            val defaultBgFile = imageBgFiles.firstOrNull()
+
+            // 设置日间主题背景
+            (dayBgFile ?: defaultBgFile)?.let { bgFile ->
                 copyAssetToFile(
                     "$themePath/主题背景/$bgFile",
-                    if (isNightTheme) PreferKey.bgImageN else PreferKey.bgImage
+                    PreferKey.bgImage
+                )
+            }
+
+            // 设置夜间主题背景
+            (nightBgFile ?: defaultBgFile)?.let { bgFile ->
+                copyAssetToFile(
+                    "$themePath/主题背景/$bgFile",
+                    PreferKey.bgImageN
+                )
+            }
+
+            // 查找并复制阅读背景图片
+            val readBgFiles = assetManager.list("$themePath/阅读背景") ?: emptyArray()
+            // 过滤图片文件，排除明显不是背景图的文件
+            val imageReadBgFiles = readBgFiles.filter {
+                (it.endsWith(".jpg") || it.endsWith(".png") || it.endsWith(".jpeg")) &&
+                !it.contains("启动") && !it.contains("启动界面")
+            }
+
+            // 查找日间阅读背景
+            val dayReadBgFile = imageReadBgFiles.firstOrNull {
+                val name = it.lowercase()
+                name.contains("日") || name.contains("day")
+            }
+
+            // 查找夜间阅读背景
+            val nightReadBgFile = imageReadBgFiles.firstOrNull {
+                val name = it.lowercase()
+                name.contains("夜") || name.contains("night")
+            }
+
+            // 如果有明确的日夜区分，使用对应的图片；否则使用第一张图片作为通用背景
+            val defaultReadBgFile = imageReadBgFiles.firstOrNull()
+
+            // 设置日间阅读背景
+            (dayReadBgFile ?: defaultReadBgFile)?.let { readBgFile ->
+                copyAssetToReadBg(
+                    "$themePath/阅读背景/$readBgFile",
+                    false  // 日间模式
+                )
+            }
+
+            // 设置夜间阅读背景
+            (nightReadBgFile ?: defaultReadBgFile)?.let { readBgFile ->
+                copyAssetToReadBg(
+                    "$themePath/阅读背景/$readBgFile",
+                    true  // 夜间模式
                 )
             }
 
@@ -292,6 +358,40 @@ object ThemeConfig {
             appCtx.putPrefString(preferKey, targetFile.absolutePath)
         } catch (e: Exception) {
             e.printOnDebug()
+        }
+    }
+
+    /**
+     * 从assets复制阅读背景图到应用目录并设置到ReadBookConfig
+     */
+    private fun copyAssetToReadBg(assetPath: String, isNightMode: Boolean) {
+        try {
+            val assetManager = appCtx.assets
+            val fileName = assetPath.substringAfterLast("/")
+            val targetDir = appCtx.externalFiles.getFile("bg")
+            targetDir.mkdirs()
+            val targetFile = File(targetDir, fileName)
+
+            assetManager.open(assetPath).use { input ->
+                targetFile.outputStream().use { output ->
+                    input.copyTo(output)
+                }
+            }
+
+            // 设置到所有阅读配置中
+            ReadBookConfig.configList.forEach { config ->
+                if (isNightMode) {
+                    config.bgTypeNight = 2  // 2表示图片类型
+                    config.bgStrNight = targetFile.absolutePath
+                } else {
+                    config.bgType = 2  // 2表示图片类型
+                    config.bgStr = targetFile.absolutePath
+                }
+            }
+            ReadBookConfig.save()
+        } catch (e: Exception) {
+            e.printOnDebug()
+            AppLog.put("复制阅读背景图出错\n${e.localizedMessage}", e)
         }
     }
 
