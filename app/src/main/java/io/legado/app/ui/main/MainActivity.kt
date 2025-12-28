@@ -118,13 +118,10 @@ class MainActivity : VMBaseActivity<ActivityMainBinding, MainViewModel>(),
         lifecycleScope.launch {
             //隐私协议
             if (!privacyPolicy()) return@launch
-            //版本更新
-            upVersion()
-            //设置本地密码
-            setLocalPassword()
+            //云端弹窗检查
+            checkCloudDialog()
+            //应用崩溃通知
             notifyAppCrash()
-            //备份同步
-            backupSync()
             //自动更新书籍
             val isAutoRefreshedBook = savedInstanceState?.getBoolean("isAutoRefreshedBook") ?: false
             if (AppConfig.autoRefreshBook && !isAutoRefreshedBook) {
@@ -300,6 +297,32 @@ class MainActivity : VMBaseActivity<ActivityMainBinding, MainViewModel>(),
                         viewModel.restoreWebDav(lastBackupFile.displayName)
                     }
                 }
+            }
+        }
+    }
+
+    /**
+     * 云端弹窗检查
+     */
+    private suspend fun checkCloudDialog() = suspendCoroutine { block ->
+        lifecycleScope.launch {
+            try {
+                val config = withContext(IO) {
+                    io.legado.app.help.cloud.CloudDialogManager.checkAndGetDialog()
+                }
+
+                if (config != null) {
+                    val dialog = io.legado.app.help.cloud.CloudDialogFragment.newInstance(config)
+                    dialog.setOnDismissListener {
+                        block.resume(null)
+                    }
+                    showDialogFragment(dialog)
+                } else {
+                    block.resume(null)
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+                block.resume(null)
             }
         }
     }

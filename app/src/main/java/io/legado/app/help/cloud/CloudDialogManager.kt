@@ -1,0 +1,137 @@
+package io.legado.app.help.cloud
+
+import android.content.Context
+import android.content.SharedPreferences
+import androidx.core.content.edit
+import io.legado.app.BuildConfig
+import io.legado.app.help.http.newCallStrResponse
+import io.legado.app.help.http.okHttpClient
+import io.legado.app.utils.GSON
+import io.legado.app.utils.fromJsonObject
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import splitties.init.appCtx
+
+/**
+ * 云端弹窗管理器
+ * 负责从服务器获取弹窗配置并管理显示状态
+ */
+object CloudDialogManager {
+
+    private const val CLOUD_DIALOG_URL = "https://xs.zhigeyun.com/tc"
+    private const val PREFS_NAME = "cloud_dialog"
+    private const val KEY_FIRST_LAUNCH = "first_launch"
+    private const val KEY_LAST_VERSION = "last_version"
+    private const val KEY_LAST_UPDATE_VERSION = "last_update_version"
+
+    private val prefs: SharedPreferences by lazy {
+        appCtx.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+    }
+
+    /**
+     * 从云端获取弹窗配置
+     * @return CloudDialogConfig 或 null（如果获取失败）
+     */
+    suspend fun fetchCloudDialogConfig(): CloudDialogConfig? {
+        return withContext(Dispatchers.IO) {
+            try {
+                val response = okHttpClient.newCallStrResponse {
+                    url(CLOUD_DIALOG_URL)
+                }
+
+                if (response.isSuccessful()) {
+                    val jsonStr = response.body()
+                    if (!jsonStr.isNullOrBlank()) {
+                        GSON.fromJsonObject<CloudDialogConfig>(jsonStr).getOrNull()
+                    } else {
+                        null
+                    }
+                } else {
+                    null
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+                null
+            }
+        }
+    }
+
+    /**
+     * 检查是否需要显示云端弹窗
+     * @return CloudDialogConfig 如果需要显示，否则返回 null
+     */
+    suspend fun checkAndGetDialog(): CloudDialogConfig? {
+        val config = fetchCloudDialogConfig() ?: return null
+
+        val isFirstLaunch = isFirstLaunch()
+        val lastVersion = getLastVersion()
+        val currentAppVersionCode = BuildConfig.VERSION_CODE.toLong()
+
+        // 判断是否需要显示
+        if (config.shouldDisplay(isFirstLaunch, lastVersion, currentAppVersionCode)) {
+            return config
+        }
+
+        return null
+    }
+
+    /**
+     * 标记弹窗已显示
+     * @param config 已显示的弹窗配置
+     */
+    fun markDialogShown(config: CloudDialogConfig) {
+        prefs.edit {
+            // 标记不再是首次启动
+            putBoolean(KEY_FIRST_LAUNCH, false)
+
+            // 保存当前配置版本号
+            putString(KEY_LAST_VERSION, config.version)
+
+            // 如果是更新弹窗，保存更新版本号
+            if (config.isUpdateDialog(BuildConfig.VERSION_CODE.toLong())) {
+                config.latestAppVersion?.let {
+                    putString(KEY_LAST_UPDATE_VERSION, it)
+                }
+            }
+        }
+    }
+
+    /**
+     * 判断是否为首次启动
+     */
+    private fun isFirstLaunch(): Boolean {
+        return prefs.getBoolean(KEY_FIRST_LAUNCH, true)
+    }
+
+    /**
+     * 获取上次显示的配置版本号
+     */
+    private fun getLastVersion(): String? {
+        return prefs.getString(KEY_LAST_VERSION, null)
+    }
+
+    /**
+     * 获取上次显示的更新版本号
+     */
+    fun getLastUpdateVersion(): String? {
+        return prefs.getString(KEY_LAST_UPDATE_VERSION, null)
+    }
+
+    /**
+     * 重置首次启动标记（用于测试）
+     */
+    fun resetFirstLaunch() {
+        prefs.edit {
+            putBoolean(KEY_FIRST_LAUNCH, true)
+        }
+    }
+
+    /**
+     * 清除所有云端弹窗数据（用于测试）
+     */
+    fun clearAll() {
+        prefs.edit {
+            clear()
+        }
+    }
+}
