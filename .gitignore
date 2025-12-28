@@ -18,3 +18,4 @@ package-lock.json
 .kotlin/
 /云弹窗
 /.claude
+/内置主题
