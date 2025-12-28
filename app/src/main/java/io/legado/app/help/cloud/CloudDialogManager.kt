@@ -29,6 +29,13 @@ object CloudDialogManager {
     }
 
     /**
+     * 进程级别的标记，防止Activity重建时重复显示
+     * 每次应用进程启动时重置为false
+     */
+    @Volatile
+    private var hasShownInCurrentProcess = false
+
+    /**
      * 从云端获取弹窗配置
      * @return CloudDialogConfig 或 null（如果获取失败）
      */
@@ -61,6 +68,11 @@ object CloudDialogManager {
      * @return CloudDialogConfig 如果需要显示，否则返回 null
      */
     suspend fun checkAndGetDialog(): CloudDialogConfig? {
+        // 进程级别检查：如果本次进程已经显示过，直接返回null
+        if (hasShownInCurrentProcess) {
+            return null
+        }
+
         val config = fetchCloudDialogConfig() ?: return null
 
         val isFirstLaunch = isFirstLaunch()
@@ -80,6 +92,9 @@ object CloudDialogManager {
      * @param config 已显示的弹窗配置
      */
     fun markDialogShown(config: CloudDialogConfig) {
+        // 标记进程级别已显示
+        hasShownInCurrentProcess = true
+
         prefs.edit {
             // 标记不再是首次启动
             putBoolean(KEY_FIRST_LAUNCH, false)
@@ -127,9 +142,18 @@ object CloudDialogManager {
     }
 
     /**
+     * 重置进程级别标记（用于测试）
+     * 注意：这只会重置内存标记，不会影响SharedPreferences
+     */
+    fun resetProcessFlag() {
+        hasShownInCurrentProcess = false
+    }
+
+    /**
      * 清除所有云端弹窗数据（用于测试）
      */
     fun clearAll() {
+        hasShownInCurrentProcess = false
         prefs.edit {
             clear()
         }
