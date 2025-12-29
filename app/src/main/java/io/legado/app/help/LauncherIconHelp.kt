@@ -16,11 +16,8 @@ object LauncherIconHelp {
     private val packageManager: PackageManager = appCtx.packageManager
     private val componentNames = arrayListOf(
         ComponentName(appCtx, Launcher1::class.java.name),
-        ComponentName(appCtx, Launcher2::class.java.name),
         ComponentName(appCtx, Launcher3::class.java.name),
-        ComponentName(appCtx, Launcher4::class.java.name),
-        ComponentName(appCtx, Launcher5::class.java.name),
-        ComponentName(appCtx, Launcher6::class.java.name)
+        ComponentName(appCtx, Launcher4::class.java.name)
     )
 
     fun changeIcon(icon: String?) {
