@@ -27,6 +27,7 @@ import io.legado.app.help.AppWebDav
 import io.legado.app.help.book.BookHelp
 import io.legado.app.help.config.AppConfig
 import io.legado.app.help.config.LocalConfig
+import io.legado.app.help.config.ThemeConfig
 import io.legado.app.help.coroutine.Coroutine
 import io.legado.app.help.storage.Backup
 import io.legado.app.lib.dialogs.alert
@@ -116,6 +117,11 @@ class MainActivity : VMBaseActivity<ActivityMainBinding, MainViewModel>(),
     override fun onPostCreate(savedInstanceState: Bundle?) {
         super.onPostCreate(savedInstanceState)
         lifecycleScope.launch {
+            //第一次打开应用时应用默认主题
+            if (LocalConfig.isFirstOpenApp) {
+                val bambooTheme = ThemeConfig.configList.find { it.themeName == "竹外桃花" }
+                bambooTheme?.let { ThemeConfig.applyConfig(this@MainActivity, it) }
+            }
             //隐私协议
             if (!privacyPolicy()) return@launch
             //云端弹窗检查
