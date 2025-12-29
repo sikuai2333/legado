@@ -18,7 +18,7 @@ import splitties.init.appCtx
  */
 object CloudDialogManager {
 
-    private const val CLOUD_DIALOG_URL = "https://xs.zhigeyun.com/sysm.html"
+    private const val CLOUD_DIALOG_URL = "https://xs.zhigeyun.com/tc"
     private const val PREFS_NAME = "cloud_dialog"
     private const val KEY_FIRST_LAUNCH = "first_launch"
     private const val KEY_LAST_VERSION = "last_version"
