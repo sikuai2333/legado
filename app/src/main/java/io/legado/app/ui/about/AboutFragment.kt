@@ -57,8 +57,8 @@ class AboutFragment : PreferenceFragmentCompat() {
         when (preference.key) {
             "forkNotice" -> showMdFile(getString(R.string.fork_notice), "FORK_NOTICE.md")
             "contributors" -> openUrl(R.string.contributors_url)
-            "update_log" -> showMdFile(getString(R.string.update_log), "updateLog.md")
-            "check_update" -> checkUpdate()
+            "update_log" -> loadUpdateLogFromWeb()
+            "check_update" -> openUrl("https://xs.zhigeyun.com")
             "mail" -> requireContext().sendMail(getString(R.string.email))
             "license" -> showMdFile(getString(R.string.license), "LICENSE.md")
             "disclaimer" -> showMdFile(getString(R.string.disclaimer), "disclaimer.md")
@@ -76,6 +76,10 @@ class AboutFragment : PreferenceFragmentCompat() {
         requireContext().openUrl(getString(addressID))
     }
 
+    private fun openUrl(url: String) {
+        requireContext().openUrl(url)
+    }
+
     /**
      * 显示md文件
      */
@@ -85,24 +89,35 @@ class AboutFragment : PreferenceFragmentCompat() {
     }
 
     /**
-     * 检测更新
+     * 从网络加载更新日志
      */
-    private fun checkUpdate() {
+    private fun loadUpdateLogFromWeb() {
         waitDialog.show()
-        AppUpdate.gitHubUpdate?.run {
-            check(lifecycleScope)
-                .onSuccess {
-                    showDialogFragment(
-                        UpdateDialog(it)
-                    )
-                }.onError {
-                    appCtx.toastOnUi("${getString(R.string.check_update)}\n${it.localizedMessage}")
-                }.onFinally {
-                    waitDialog.dismiss()
+        Coroutine.async {
+            try {
+                val url = "https://xs.zhigeyun.com/gxrz.html"
+                val connection = java.net.URL(url).openConnection() as java.net.HttpURLConnection
+                connection.requestMethod = "GET"
+                connection.connectTimeout = 10000
+                connection.readTimeout = 10000
+                connection.setRequestProperty("User-Agent", "Mozilla/5.0")
+
+                val responseCode = connection.responseCode
+                if (responseCode == 200) {
+                    val content = connection.inputStream.bufferedReader().use { it.readText() }
+                    showDialogFragment(TextDialog(getString(R.string.update_log), content, TextDialog.Mode.HTML))
+                } else {
+                    appCtx.toastOnUi("加载失败: HTTP $responseCode")
                 }
+                connection.disconnect()
+            } catch (e: Exception) {
+                AppLog.put("加载更新日志失败\n${e.localizedMessage}", e)
+                appCtx.toastOnUi("加载更新日志失败: ${e.localizedMessage}")
+            }
+        }.onFinally {
+            waitDialog.dismiss()
         }
     }
-
 
     /**
      * 加入qq群
