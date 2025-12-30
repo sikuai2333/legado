@@ -59,6 +59,12 @@
             android:title="@string/disclaimer"
             app:iconSpaceReserved="false" />
 
+        <io.legado.app.lib.prefs.Preference
+            android:key="forkNotice"
+            android:title="@string/fork_notice"
+            android:summary="@string/fork_notice_summary"
+            app:iconSpaceReserved="false" />
+
     </io.legado.app.lib.prefs.PreferenceCategory>
 
 </androidx.preference.PreferenceScreen>

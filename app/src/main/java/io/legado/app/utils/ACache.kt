@@ -1,4 +1,11 @@
 //Copyright (c) 2017. 章钦豪. All rights reserved.
+//
+//This file is part of Legado (https://github.com/gedoor/legado)
+//Legado is licensed under the GNU General Public License v3.0
+//
+//Fork: https://github.com/sikuai2333/legado
+//Fork modifications: Application name changed to "书苗阅读"
+//This fork maintains the original GPL-3.0 license.
 package io.legado.app.utils
 
 import android.graphics.Bitmap

@@ -98,10 +98,10 @@
     <string name="offline_cache_s">salvar o(s) capítulo(s) selecionado(s) no Armazenamento em cache</string>
     <string name="change_origin">Alterar a origem</string>
     <string name="about_description">
-        \u3000\u3000 Este é um App de leitura de software livre, desenvolvido em Kotlin, você é bem-vindo a participar em projeto.
+        \\u3000\\u3000A professional reading application for managing and reading books.
     </string>
     <string name="app_share_description">
-        Legado (YueDu 3.0) link de download：\n https://github.com/gedoor/legado/releases
+        書苗阅读 - Download from https://xs.zhigeyun.com
     </string>
     <string name="version_name">Versão %s</string>
     <string name="pt_background_verification">Verificação em segundo plano</string>
@@ -120,7 +120,7 @@
     <string name="ok">OK</string>
     <string name="cancel">Cancelar</string>
     <string name="backup_confirmation">Confirmação do Backup</string>
-    <string name="backup_message">Os novos arquivos de Backup substituirão os originais.\n Pasta de Backup: YueDu</string>
+    <string name="backup_message">Os novos arquivos de Backup substituirão os originais.\n Pasta de Backup: 書苗阅读</string>
     <string name="restore_confirmation">Confirmação da Restauração</string>
     <string name="restore_message">A restauração dos dados da estante irá substituir a estante atual.</string>
     <string name="backup_success">Backup bem sucedido</string>

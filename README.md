@@ -1,5 +1,18 @@
 # [English](English.md) [中文](README.md)
 
+> **Fork Notice - Fork通知**
+>
+> This is a fork of the original [Legado](https://github.com/gedoor/legado) project by [gedoor](https://github.com/gedoor).
+>
+> 这是原始[Legado](https://github.com/gedoor/legado)项目的Fork版本，原作者为[gedoor](https://github.com/gedoor)。
+>
+> **Original Project**: https://github.com/gedoor/legado
+> **This Fork**: https://github.com/sikuai2333/legado
+> **Modifications**: Application name changed to "书苗阅读" (Book Seedling Reading)
+>
+> This fork maintains the original GPL-3.0 license and all original functionality.
+> For detailed information, see [FORK_INFO.md](FORK_INFO.md)
+
 [![icon_android](https://github.com/gedoor/gedoor.github.io/blob/master/static/img/legado/icon_android.png)](https://play.google.com/store/apps/details?id=io.legado.play.release)
 <a href="https://jb.gg/OpenSourceSupport" target="_blank">
 <img width="24" height="24" src="https://resources.jetbrains.com/storage/products/company/brand/logos/jb_beam.svg?_gl=1*135yekd*_ga*OTY4Mjg4NDYzLjE2Mzk0NTE3MzQ.*_ga_9J976DJZ68*MTY2OTE2MzM5Ny4xMy4wLjE2NjkxNjMzOTcuNjAuMC4w&_ga=2.257292110.451256242.1669085120-968288463.1639451734" alt="idea"/>

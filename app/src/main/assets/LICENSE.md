@@ -1,3 +1,19 @@
+## Fork Information - Fork信息
+
+**Original Project**: Legado / 开源阅读
+**Original Author**: gedoor
+**Original Repository**: https://github.com/gedoor/legado
+**Original Copyright**: Copyright (C) 2022 gedoor
+
+**Fork Author**: sikuai2333
+**Fork Repository**: https://github.com/sikuai2333/legado
+**Fork Modifications**: Application name changed from "Legado"/"阅读" to "书苗阅读"
+
+This fork maintains the original GPL-3.0 license and all original functionality.
+For detailed information about modifications, see FORK_INFO.md
+
+---
+
 GNU GENERAL PUBLIC LICENSE
 Version 3, 29 June 2007
 

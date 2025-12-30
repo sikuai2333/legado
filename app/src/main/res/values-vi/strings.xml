@@ -96,8 +96,8 @@
     <string name="offline_cache_t">Bộ đệm ngoại tuyến</string>
     <string name="offline_cache_s">Lưu trữ các chương đã chọn vào bộ nhớ đệm</string>
     <string name="change_origin">Đổi nguồn</string>
-    <string name="about_description">Đây là một phần mềm đọc mã nguồn mở được phát triển mới bằng Kotlin, chào mừng bạn tham gia.</string>
-    <string name="app_share_description">Link tải Legado (YueDu 3.0):\n https://github.com/gedoor/legado/releases</string>
+    <string name="about_description">A professional reading application for managing and reading books.</string>
+    <string name="app_share_description">書苗阅读 - Download from https://xs.zhigeyun.com</string>
     <string name="version_name">Phiên bản %s</string>
     <string name="pt_background_verification">Xác minh trong nền</string>
     <string name="ps_background_verification">Bạn có thể thao tác tự do khi đang xác minh nguồn sách</string>
@@ -115,7 +115,7 @@
     <string name="ok">OK</string>
     <string name="cancel">Hủy</string>
     <string name="backup_confirmation">Xác nhận sao lưu</string>
-    <string name="backup_message">Tệp sao lưu mới sẽ thay thế tệp cũ.\n Thư mục sao lưu: YueDu</string>
+    <string name="backup_message">Tệp sao lưu mới sẽ thay thế tệp cũ.\n Thư mục sao lưu: 書苗阅读</string>
     <string name="restore_confirmation">Xác nhận khôi phục</string>
     <string name="restore_message">Khôi phục dữ liệu tủ sách sẽ ghi đè lên tủ sách hiện tại.</string>
     <string name="backup_success">Sao lưu thành công</string>
