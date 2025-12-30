@@ -4,6 +4,7 @@ import android.util.Base64
 import cn.hutool.crypto.digest.DigestUtil
 import cn.hutool.crypto.digest.HMac
 import cn.hutool.crypto.symmetric.SymmetricCrypto
+import io.legado.app.help.crypto.AesGcm
 import io.legado.app.help.crypto.AsymmetricCrypto
 import io.legado.app.help.crypto.Sign
 import io.legado.app.help.crypto.SymmetricCryptoAndroid
@@ -37,6 +38,128 @@ interface JsEncodeUtils {
      * java.createSymmetricCrypto(transformation, key, iv).encryptBase64(data)
      * java.createSymmetricCrypto(transformation, key, iv).encryptHex(data)
      */
+
+    //******************AES-GCM加密解密************************//
+
+    /**
+     * AES-GCM 加密
+     * 在js中这样使用:
+     * java.aesGcmEncrypt(data, key, iv)
+     * java.aesGcmEncrypt(data, key, iv, aad)
+     * java.aesGcmEncryptBase64(data, key, iv)
+     * java.aesGcmEncryptHex(data, key, iv)
+     */
+    fun aesGcmEncrypt(
+        data: String,
+        key: String,
+        iv: String,
+        aad: String? = null
+    ): ByteArray {
+        return AesGcm.encrypt(data, key, iv, aad)
+    }
+
+    fun aesGcmEncrypt(
+        data: ByteArray,
+        key: ByteArray,
+        iv: ByteArray,
+        aad: ByteArray? = null
+    ): ByteArray {
+        return AesGcm.encrypt(data, key, iv, aad)
+    }
+
+    fun aesGcmEncryptBase64(
+        data: String,
+        key: String,
+        iv: String,
+        aad: String? = null
+    ): String {
+        return AesGcm.encryptBase64(data, key, iv, aad)
+    }
+
+    fun aesGcmEncryptBase64(
+        data: ByteArray,
+        key: ByteArray,
+        iv: ByteArray,
+        aad: ByteArray? = null
+    ): String {
+        return AesGcm.encryptBase64(data, key, iv, aad)
+    }
+
+    fun aesGcmEncryptHex(
+        data: String,
+        key: String,
+        iv: String,
+        aad: String? = null
+    ): String {
+        return AesGcm.encryptHex(data, key, iv, aad)
+    }
+
+    fun aesGcmEncryptHex(
+        data: ByteArray,
+        key: ByteArray,
+        iv: ByteArray,
+        aad: ByteArray? = null
+    ): String {
+        return AesGcm.encryptHex(data, key, iv, aad)
+    }
+
+    /**
+     * AES-GCM 解密
+     * 在js中这样使用:
+     * java.aesGcmDecrypt(data, key, iv)
+     * java.aesGcmDecrypt(data, key, iv, aad)
+     * java.aesGcmDecryptStr(data, key, iv)
+     */
+    fun aesGcmDecrypt(
+        data: String,
+        key: String,
+        iv: String,
+        aad: String? = null
+    ): ByteArray {
+        return AesGcm.decrypt(data, key, iv, aad)
+    }
+
+    fun aesGcmDecrypt(
+        data: ByteArray,
+        key: ByteArray,
+        iv: ByteArray,
+        aad: ByteArray? = null
+    ): ByteArray {
+        return AesGcm.decrypt(data, key, iv, aad)
+    }
+
+    fun aesGcmDecryptStr(
+        data: String,
+        key: String,
+        iv: String,
+        aad: String? = null
+    ): String {
+        return AesGcm.decryptStr(data, key, iv, aad)
+    }
+
+    fun aesGcmDecryptStr(
+        data: ByteArray,
+        key: ByteArray,
+        iv: ByteArray,
+        aad: ByteArray? = null
+    ): String {
+        return AesGcm.decryptStr(data, key, iv, aad)
+    }
+
+    /**
+     * 生成AES-GCM随机IV（12字节）
+     */
+    fun aesGcmGenerateIv(): ByteArray {
+        return AesGcm.generateIv()
+    }
+
+    /**
+     * 生成AES随机密钥
+     * @param length 密钥长度：16(AES-128), 24(AES-192), 32(AES-256)
+     */
+    fun aesGcmGenerateKey(length: Int = 16): ByteArray {
+        return AesGcm.generateKey(length)
+    }
 
     /* 调用SymmetricCrypto key为null时使用随机密钥*/
     fun createSymmetricCrypto(

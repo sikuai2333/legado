@@ -29,6 +29,7 @@ import io.legado.app.help.config.AppConfig
 import io.legado.app.help.config.LocalConfig
 import io.legado.app.help.config.ThemeConfig
 import io.legado.app.help.coroutine.Coroutine
+import io.legado.app.help.source.EncryptedBookSourceManager
 import io.legado.app.help.storage.Backup
 import io.legado.app.lib.dialogs.alert
 import io.legado.app.lib.theme.elevation
@@ -45,6 +46,7 @@ import io.legado.app.ui.widget.dialog.TextDialog
 import io.legado.app.utils.isCreated
 import io.legado.app.utils.navigationBarHeight
 import io.legado.app.utils.observeEvent
+import io.legado.app.utils.putBoolean
 import io.legado.app.utils.setEdgeEffectColor
 import io.legado.app.utils.setOnApplyWindowInsetsListenerCompat
 import io.legado.app.utils.showDialogFragment
@@ -124,6 +126,8 @@ class MainActivity : VMBaseActivity<ActivityMainBinding, MainViewModel>(),
             }
             //隐私协议
             if (!privacyPolicy()) return@launch
+            //首次启动导入加密书源
+            importEncryptedSourcesOnFirstLaunch()
             //云端弹窗检查
             checkCloudDialog()
             //应用崩溃通知
@@ -328,6 +332,48 @@ class MainActivity : VMBaseActivity<ActivityMainBinding, MainViewModel>(),
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
+                block.resume(null)
+            }
+        }
+    }
+
+    /**
+     * 首次启动导入加密书源
+     */
+    private suspend fun importEncryptedSourcesOnFirstLaunch() = suspendCoroutine { block ->
+        // 检查是否已经导入过
+        if (LocalConfig.getBoolean("encryptedSourcesImported", false)) {
+            block.resume(null)
+            return@suspendCoroutine
+        }
+
+        alert(getString(R.string.draw), "您是第一次打开软件，是否导入书源？") {
+            yesButton {
+                lifecycleScope.launch {
+                    try {
+                        val count = withContext(IO) {
+                            EncryptedBookSourceManager.importEncryptedSources()
+                        }
+                        if (count > 0) {
+                            toastOnUi("成功导入 $count 个书源")
+                        } else {
+                            toastOnUi("导入书源失败")
+                        }
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                        toastOnUi("导入书源失败: ${e.message}")
+                    }
+                    // 标记已导入，无论成功与否都不再提示
+                    LocalConfig.putBoolean("encryptedSourcesImported", true)
+                    block.resume(null)
+                }
+            }
+            noButton {
+                // 用户拒绝导入，标记为未导入书源
+                LocalConfig.putBoolean("encryptedSourcesImported", false)
+                block.resume(null)
+            }
+            onCancelled {
                 block.resume(null)
             }
         }

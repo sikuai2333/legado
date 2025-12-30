@@ -2,8 +2,10 @@ package io.legado.app.help.cloud
 
 import android.content.Context
 import android.content.SharedPreferences
+import android.util.Base64
 import androidx.core.content.edit
 import io.legado.app.BuildConfig
+import io.legado.app.help.crypto.AesGcm
 import io.legado.app.help.http.newCallStrResponse
 import io.legado.app.help.http.okHttpClient
 import io.legado.app.utils.GSON
@@ -23,6 +25,11 @@ object CloudDialogManager {
     private const val KEY_FIRST_LAUNCH = "first_launch"
     private const val KEY_LAST_VERSION = "last_version"
     private const val KEY_LAST_UPDATE_VERSION = "last_update_version"
+
+    // AES-GCM 解密密钥和IV（Base64编码）
+    private const val AES_KEY_BASE64 = "R4LmwbWucdfsMDrHi7rGwQ=="
+    private val aesKey: ByteArray by lazy { Base64.decode(AES_KEY_BASE64, Base64.NO_WRAP) }
+    private val aesIv: ByteArray by lazy { Base64.decode(AES_KEY_BASE64, Base64.NO_WRAP) }
 
     private val prefs: SharedPreferences by lazy {
         appCtx.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
@@ -47,9 +54,15 @@ object CloudDialogManager {
                 }
 
                 if (response.isSuccessful()) {
-                    val jsonStr = response.body()
-                    if (!jsonStr.isNullOrBlank()) {
-                        GSON.fromJsonObject<CloudDialogConfig>(jsonStr).getOrNull()
+                    val encryptedData = response.body()
+                    if (!encryptedData.isNullOrBlank()) {
+                        // 使用 AES-GCM 解密
+                        val jsonStr = decryptConfig(encryptedData)
+                        if (jsonStr != null) {
+                            GSON.fromJsonObject<CloudDialogConfig>(jsonStr).getOrNull()
+                        } else {
+                            null
+                        }
                     } else {
                         null
                     }
@@ -60,6 +73,20 @@ object CloudDialogManager {
                 e.printStackTrace()
                 null
             }
+        }
+    }
+
+    /**
+     * 解密云端配置
+     * @param encryptedData Base64编码的加密数据
+     * @return 解密后的JSON字符串，失败返回null
+     */
+    private fun decryptConfig(encryptedData: String): String? {
+        return try {
+            AesGcm.decryptStr(encryptedData, aesKey, aesIv, null)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
         }
     }
 
