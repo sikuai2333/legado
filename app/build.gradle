@@ -19,8 +19,8 @@ static def releaseTime() {
     return new Date().format("yy.MMddHH", TimeZone.getTimeZone("GMT+8"))
 }
 
-def name = "legado"
-def version = "3." + releaseTime()
+def name = "shumiao"
+def version = "1.0.0"
 def gitCommits = Integer.parseInt('git rev-list HEAD --count'.execute().text.trim())
 
 android {
@@ -47,7 +47,7 @@ android {
         }
     }
     defaultConfig {
-        applicationId "io.legado.app"
+        applicationId "com.zhigeyun.xs"
         minSdk 21
         targetSdk 36
         versionCode 10000 + gitCommits
