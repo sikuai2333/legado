@@ -92,7 +92,7 @@ class RssSortActivity : VMBaseActivity<ActivityRssArtivlesBinding, RssSortViewMo
             }
 
             R.id.menu_read_record -> {
-                showDialogFragment<ReadRecordDialog>()
+                openUrl("https://xs.zhigeyun.com")
             }
         }
         return super.onCompatOptionsItemSelected(item)
