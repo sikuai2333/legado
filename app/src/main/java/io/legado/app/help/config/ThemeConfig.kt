@@ -224,9 +224,16 @@ object ThemeConfig {
                 context.putPrefInt(PreferKey.cBBackground, bBackground)
             }
 
-            // 应用内置主题的图片资源
-            config.assetsThemePath?.let { themePath ->
-                applyThemeImages(context, themePath, config.isNightTheme)
+            // 应用内置主题的图片资源，或清除背景图片
+            if (config.assetsThemePath != null) {
+                applyThemeImages(context, config.assetsThemePath!!, config.isNightTheme)
+            } else {
+                // 没有背景图片的主题，清除背景图片设置
+                if (config.isNightTheme) {
+                    context.putPrefString(PreferKey.bgImageN, "")
+                } else {
+                    context.putPrefString(PreferKey.bgImage, "")
+                }
             }
 
             AppConfig.isNightTheme = config.isNightTheme
@@ -276,19 +283,21 @@ object ThemeConfig {
             val defaultBgFile = imageBgFiles.firstOrNull()
 
             // 设置日间主题背景
-            (dayBgFile ?: defaultBgFile)?.let { bgFile ->
-                copyAssetToFile(
-                    "$themePath/主题背景/$bgFile",
-                    PreferKey.bgImage
-                )
+            if (dayBgFile != null) {
+                copyAssetToFile("$themePath/主题背景/$dayBgFile", PreferKey.bgImage)
+            } else if (defaultBgFile != null && nightBgFile == null) {
+                // 只有一张图片且没有夜间图片时，设置为日间背景
+                copyAssetToFile("$themePath/主题背景/$defaultBgFile", PreferKey.bgImage)
+            } else if (defaultBgFile != null) {
+                copyAssetToFile("$themePath/主题背景/$defaultBgFile", PreferKey.bgImage)
             }
 
-            // 设置夜间主题背景
-            (nightBgFile ?: defaultBgFile)?.let { bgFile ->
-                copyAssetToFile(
-                    "$themePath/主题背景/$bgFile",
-                    PreferKey.bgImageN
-                )
+            // 设置夜间主题背景（只有明确的夜间图片才设置，避免浅色背景在深色模式下看不清）
+            if (nightBgFile != null) {
+                copyAssetToFile("$themePath/主题背景/$nightBgFile", PreferKey.bgImageN)
+            } else {
+                // 没有专门的夜间背景图片时，清除夜间背景设置，使用纯色背景
+                context.putPrefString(PreferKey.bgImageN, "")
             }
 
             // 查找并复制阅读背景图片
@@ -315,20 +324,20 @@ object ThemeConfig {
             val defaultReadBgFile = imageReadBgFiles.firstOrNull()
 
             // 设置日间阅读背景
-            (dayReadBgFile ?: defaultReadBgFile)?.let { readBgFile ->
-                copyAssetToReadBg(
-                    "$themePath/阅读背景/$readBgFile",
-                    false  // 日间模式
-                )
+            if (dayReadBgFile != null) {
+                copyAssetToReadBg("$themePath/阅读背景/$dayReadBgFile", false)
+            } else if (defaultReadBgFile != null && nightReadBgFile == null) {
+                // 只有一张图片且没有夜间图片时，设置为日间背景
+                copyAssetToReadBg("$themePath/阅读背景/$defaultReadBgFile", false)
+            } else if (defaultReadBgFile != null) {
+                copyAssetToReadBg("$themePath/阅读背景/$defaultReadBgFile", false)
             }
 
-            // 设置夜间阅读背景
-            (nightReadBgFile ?: defaultReadBgFile)?.let { readBgFile ->
-                copyAssetToReadBg(
-                    "$themePath/阅读背景/$readBgFile",
-                    true  // 夜间模式
-                )
+            // 设置夜间阅读背景（只有明确的夜间图片才设置）
+            if (nightReadBgFile != null) {
+                copyAssetToReadBg("$themePath/阅读背景/$nightReadBgFile", true)
             }
+            // 没有专门的夜间阅读背景时，不设置，保持默认
 
             // 启用自定义欢迎界面
             context.putPrefBoolean(PreferKey.customWelcome, true)

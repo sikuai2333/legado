@@ -162,8 +162,12 @@ abstract class BaseActivity<VB : ViewBinding>(
     open fun upBackgroundImage() {
         if (imageBg) {
             try {
-                ThemeConfig.getBgImage(this, windowManager.windowSize)?.let {
-                    window.decorView.background = BitmapDrawable(resources, it)
+                val bgImage = ThemeConfig.getBgImage(this, windowManager.windowSize)
+                if (bgImage != null) {
+                    window.decorView.background = BitmapDrawable(resources, bgImage)
+                } else {
+                    // 无背景图片时，清除背景并使用纯色背景
+                    window.decorView.setBackgroundColor(backgroundColor)
                 }
             } catch (e: OutOfMemoryError) {
                 toastOnUi("背景图片太大,内存溢出")
